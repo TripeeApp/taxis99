@@ -21,7 +21,9 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	req := cloneReq(r)
 	// Inject the authorization headers
 	req.Header.Set("x-api-key", t.APIKey)
-	req.Header.Set("x-company-id", t.CompanyID)
+	if t.CompanyID != "" {
+		req.Header.Set("x-company-id", t.CompanyID)
+	}
 
 	return t.base().RoundTrip(req)
 }

@@ -1,24 +1,44 @@
 package taxis99
 
 import (
-
+	"fmt"
 )
 
-type ExistingUser struct {
-	Categories []string `json:"categories"`
-	Company    struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	} `json:"company"`
-	Email      string `json:"email"`
-	Enabled    bool   `json:"enabled"`
-	ExternalID int    `json:"externalId"`
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	NationalID string `json:"nationalId"`
-	Phone      struct {
-		Country string `json:"country"`
-		Number  string `json:"number"`
+// User struct to describe an existing user on the 99 taxis API
+type User struct {
+	Name string `json:"name"`
+	Phone struct {
+		Number string `json:"number"`
+		Country string `json:"country,omitempty"`
 	} `json:"phone"`
-	SupervisorID int `json:"supervisorId"`
+	Email string `json:"email"`
+	NationalID string `json:"nationalId,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	SupervisorID int `json:"supervisorId,omitempty"`
+	Categories []string `json:"categories"`
 }
+
+// employee is not exported because it is only present when inserting users
+// in order to keep a sane API we use it behind the scenes without exporting it
+type employee struct {
+	Employee User `json:"employee"`
+	SendWelcomeEmail bool `json:"sendWelcomeEmail,omitempty"`
+}
+
+// CostCenter describes a cost center in the 99 taxis API
+type CostCenter struct {
+	ID int `json:"id"`
+	Name string `json:"name"`
+}
+
+// Company represents a company for marshalling purposes
+type Company struct {
+	ID string `json:"id"`
+	Name string `json:"name"`
+}
+
+var (
+	listCompanies endpoint = `companies`
+	employees endpoint = `employees`
+	costCenter = `/costcenter`
+)
