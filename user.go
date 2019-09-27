@@ -15,7 +15,9 @@ type User struct {
 	NationalID string `json:"nationalId,omitempty"`
 	ExternalID string `json:"externalId,omitempty"`
 	SupervisorID int `json:"supervisorId,omitempty"`
+	Enabled bool `json:"enabled,omitempty"`
 	Categories []string `json:"categories"`
+	ID int `json:"id,omitempty"`
 }
 
 // employee is not exported because it is only present when inserting users
