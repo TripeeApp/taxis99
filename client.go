@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -32,7 +34,7 @@ func (e *APIError) Unwrap() error {
 // requester is the interface that performs a request
 // to the server and delegates the parsing to the parser interface.
 type requester interface {
-	Request(ctx context.Context, method string, path string, body, output interface{}) error
+	Request(ctx context.Context, method, path string, body, output interface{}) error
 }
 
 type service struct {
@@ -49,22 +51,29 @@ type Client struct {
 	BaseURL *url.URL
 
 	// reuse a single struct instead of allocating one for each service on the heap.
-	//	common service
+	common service
+
+	CostCenter *CostCenterService
 }
 
 // NewClient returns a reference to the Client struct.
-func NewClient(c *http.Client) *Client {
-	if c == nil {
-		c = http.DefaultClient
+func NewClient(hc *http.Client) *Client {
+	if hc == nil {
+		hc = http.DefaultClient
 	}
 	// Deep copy the the URL.
 	u, _ := url.Parse(defaultBaseURL)
 
-	client := &Client{
-		client:  c,
+	c := &Client{
+		client:  hc,
 		BaseURL: u,
 	}
-	return client
+
+	c.common.client = c
+
+	c.CostCenter = (*CostCenterService)(&c.common)
+
+	return c
 }
 
 // Request created an API request. A relative path can be providaded
@@ -95,13 +104,12 @@ func (c *Client) Request(ctx context.Context, method, path string, body, output 
 	}
 	defer res.Body.Close()
 
-	if output != nil {
-		if err = json.NewDecoder(res.Body).Decode(output); err != nil {
-			return &APIError{
-				StatusCode: res.StatusCode,
-				Msg:        fmt.Sprintf("api: '%s'.", err.Error()),
-				Err:        err,
-			}
+	// Ignores EOF errors caused by empty response body.
+	if err = json.NewDecoder(res.Body).Decode(output); err != nil && !errors.Is(err, io.EOF) {
+		return &APIError{
+			StatusCode: res.StatusCode,
+			Msg:        fmt.Sprintf("api: '%s'.", err.Error()),
+			Err:        err,
 		}
 	}
 

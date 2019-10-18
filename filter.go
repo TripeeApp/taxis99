@@ -20,9 +20,9 @@ func (f Filters) Del(key string) {
 // Values returns a url.Values mapped between Filter and values. Used internally only.
 func (f Filters) values(fields map[string]struct{}) url.Values {
 	vals := url.Values{}
-	for k, filter := range f {
+	for k, v := range f {
 		if _, ok := fields[k]; ok {
-			vals.Add(k, filter)
+			vals.Add(k, v)
 		}
 	}
 	return vals
