@@ -210,31 +210,6 @@ func (fn testRoundTripperFn) RoundTrip(r *http.Request) (*http.Response, error) 
 	return fn(r)
 }
 
-//
-//func TestClientRequestEmptyOutput(t *testing.T) {
-//	tripper := testRoundTripper(func(r *http.Request) (*http.Response, error) {
-//		defer r.Body.Close()
-//		res := &http.Response{
-//			Body: ioutil.NopCloser(bytes.NewBuffer(nil)),
-//		}
-//		return res, nil
-//	})
-//
-//	hc := &http.Client{
-//		Transport: tripper,
-//	}
-//	client := NewClient(hc)
-//
-//	err := client.Request(context.Background(), http.MethodGet, "", nil, nil)
-//	if err != nil {
-//		t.Fatalf("Got error calling Request: %s; want it to be nil.", err.Error())
-//	}
-//
-//	if buf.Len() == 0 {
-//		t.Error("Got Response.Body read; want it not to be read.")
-//	}
-//}
-
 func TestClientRequestPathError(t *testing.T) {
 	path := ":"
 	c := NewClient(nil)
