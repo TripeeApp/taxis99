@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -276,5 +277,146 @@ func TestClientRequestContextCancelled(t *testing.T) {
 	err := c.Request(ctx, http.MethodGet, "", nil, nil)
 	if err == nil {
 		t.Error("Got error nil; want it not to be nil.")
+	}
+}
+
+type mockRequester func(ctx context.Context, method, path string, body, output interface{}) error
+
+func (fn mockRequester) Request(ctx context.Context, method, path string, body, output interface{}) error {
+	return fn(ctx, method, path, body, output)
+}
+
+func newMockRequesterClient(rmck mockRequester) *Client {
+	c := NewClient(nil)
+	c.common.client = rmck
+
+	return c
+}
+
+func testPath(t *testing.T, want string, run func(*Client) error) {
+	t.Run("Path", func(t *testing.T) {
+		var got string
+		request := func(ctx context.Context, method, path string, body, output interface{}) error {
+			got = path
+			return nil
+		}
+
+		c := newMockRequesterClient(mockRequester(request))
+
+		err := run(c)
+		if err != nil {
+			t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
+		}
+
+		if got != want {
+			t.Errorf("Got path '%s'; want '%s'.", got, want)
+		}
+	})
+}
+
+func testMethod(t *testing.T, want string, run func(*Client) error) {
+	t.Run("Method", func(t *testing.T) {
+		var got string
+		request := func(ctx context.Context, method, path string, body, output interface{}) error {
+			got = method
+			return nil
+		}
+
+		c := newMockRequesterClient(mockRequester(request))
+
+		err := run(c)
+		if err != nil {
+			t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
+		}
+
+		if got != want {
+			t.Errorf("Got method '%s'; want '%s'.", got, want)
+		}
+	})
+}
+
+func testQuery(t *testing.T, f []Filter, allowedFields map[string]struct{}, run func(*Client, Filter) error) {
+	t.Run("Query", func(t *testing.T) {
+		for _, filter := range f {
+			var got url.Values
+			request := func(ctx context.Context, method, path string, body, output interface{}) error {
+				u, _ := url.Parse(path)
+				got = u.Query()
+				return nil
+			}
+
+			c := newMockRequesterClient(mockRequester(request))
+
+			err := run(c, filter)
+			if err != nil {
+				t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
+			}
+
+			if want := filter.values(allowedFields); !reflect.DeepEqual(got, want) {
+				t.Errorf("Got query values '%+v'; want '%+v'.", got, want)
+			}
+		}
+	})
+}
+
+func testResponseBody(t *testing.T, responses [][]byte, run func(*Client) (interface{}, error)) {
+	t.Run("ResponseBody", func(t *testing.T) {
+		for _, response := range responses {
+			request := func(ctx context.Context, method, path string, body, output interface{}) error {
+				buf := bytes.NewBuffer(response)
+				json.NewDecoder(buf).Decode(output)
+				return nil
+			}
+
+			c := newMockRequesterClient(mockRequester(request))
+
+			res, err := run(c)
+			if err != nil {
+				t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
+			}
+
+			var buf bytes.Buffer
+			json.NewEncoder(&buf).Encode(res)
+			if got := buf.Bytes(); !bytes.Contains(got, response) {
+				t.Errorf("Got CostCenter %s; want %s.", got, response)
+			}
+		}
+	})
+}
+
+func testRequestBody(t *testing.T, tests []func(*Client) ([]byte, error)) {
+	t.Run("RequestBody", func(t *testing.T) {
+		for _, run := range tests {
+			var got []byte
+			request := func(ctx context.Context, method, path string, body, output interface{}) error {
+				buf := new(bytes.Buffer)
+				json.NewEncoder(buf).Encode(body)
+				got = buf.Bytes()
+				return nil
+			}
+
+			c := newMockRequesterClient(mockRequester(request))
+
+			want, err := run(c)
+			if err != nil {
+				t.Fatalf("Got error calling CostCenter.Create '%s'; want nil.", err.Error())
+			}
+
+			if !bytes.Contains(got, want) {
+				t.Errorf("Got request body %s; want %s.", got, want)
+			}
+		}
+	})
+}
+
+func testError(t *testing.T, run func(*Client) error) {
+	request := func(ctx context.Context, method, path string, body, output interface{}) error {
+		return errors.New("Error!")
+	}
+
+	c := newMockRequesterClient(mockRequester(request))
+
+	if err := run(c); err == nil {
+		t.Error("Got error nil; want it not nil.")
 	}
 }

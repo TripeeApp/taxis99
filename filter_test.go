@@ -6,21 +6,21 @@ import (
 	"testing"
 )
 
-func TestFiltersAdd(t *testing.T) {
-	got := Filters{}
+func TestFilterAdd(t *testing.T) {
+	got := Filter{}
 	got.Set("search", "test")
 
-	if want := (Filters{"search": "test"}); !reflect.DeepEqual(got, want) {
-		t.Errorf("Got Filters: %+v; want %+v.", got, want)
+	if want := (Filter{"search": "test"}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Got Filter: %+v; want %+v.", got, want)
 	}
 }
 
-func TestFiltersDel(t *testing.T) {
-	got := Filters{"search": "test"}
+func TestFilterDel(t *testing.T) {
+	got := Filter{"search": "test"}
 	got.Del("search")
 
-	if want := (Filters{}); !reflect.DeepEqual(got, want) {
-		t.Errorf("Got Filters: %+v; want %+v.", got, want)
+	if want := (Filter{}); !reflect.DeepEqual(got, want) {
+		t.Errorf("Got Filter: %+v; want %+v.", got, want)
 	}
 }
 
@@ -29,7 +29,7 @@ func TestFilterValues(t *testing.T) {
 		"search": struct{}{},
 		"limit":  struct{}{},
 	}
-	f := Filters{
+	f := Filter{
 		"search":       "test",
 		"costCenterId": "1",
 	}

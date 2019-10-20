@@ -104,7 +104,7 @@ func (c *Client) Request(ctx context.Context, method, path string, body, output 
 	}
 	defer res.Body.Close()
 
-	// Ignores EOF errors caused by empty response body.
+	// Ignores io.EOF error caused by empty response body.
 	if err = json.NewDecoder(res.Body).Decode(output); err != nil && !errors.Is(err, io.EOF) {
 		return &APIError{
 			StatusCode: res.StatusCode,
