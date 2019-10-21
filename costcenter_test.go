@@ -2,6 +2,7 @@ package taxis99
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 )
@@ -75,5 +76,31 @@ func TestCostCenterCreateError(t *testing.T) {
 	testError(t, func(c *Client) error {
 		_, err := c.CostCenter.Create(context.Background(), CostCenter{})
 		return err
+	})
+}
+
+func TestCostCenterRemove(t *testing.T) {
+	testCases := []struct {
+		id   int64
+		want string
+	}{
+		{25, fmt.Sprintf(string(costCenterEndpoint), 25)},
+		{28, fmt.Sprintf(string(costCenterEndpoint), 28)},
+	}
+
+	for _, tc := range testCases {
+		testPath(t, tc.want, func(c *Client) error {
+			return c.CostCenter.Remove(context.Background(), tc.id)
+		})
+	}
+
+	testMethod(t, http.MethodDelete, func(c *Client) error {
+		return c.CostCenter.Remove(context.Background(), 20)
+	})
+}
+
+func TestCostCenterRemoveError(t *testing.T) {
+	testError(t, func(c *Client) error {
+		return c.CostCenter.Remove(context.Background(), 0)
 	})
 }

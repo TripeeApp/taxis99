@@ -2,11 +2,13 @@ package taxis99
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 )
 
 const (
 	costCentersEndpoint endpoint = `costcenters`
+	costCenterEndpoint  endpoint = `costcenters/%d`
 )
 
 // Hashset for allwed query params.
@@ -47,4 +49,11 @@ func (c *CostCenterService) Create(ctx context.Context, newCC CostCenter) (*Cost
 	}
 
 	return cc, nil
+}
+
+func (c *CostCenterService) Remove(ctx context.Context, id int64) error {
+
+	endpoint := fmt.Sprintf(string(costCenterEndpoint), id)
+
+	return c.client.Request(context.Background(), http.MethodDelete, endpoint, nil, nil)
 }
