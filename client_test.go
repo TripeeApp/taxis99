@@ -375,10 +375,9 @@ func testResponseBody(t *testing.T, responses [][]byte, run func(*Client) (inter
 				t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
 			}
 
-			var buf bytes.Buffer
-			json.NewEncoder(&buf).Encode(res)
-			if got := buf.Bytes(); !bytes.Contains(got, response) {
-				t.Errorf("Got CostCenter %s; want %s.", got, response)
+			want, _ := json.Marshal(res)
+			if !bytes.Contains(response, want) {
+				t.Errorf("Got response %s; want substring %s.", response, want)
 			}
 		}
 	})
@@ -389,9 +388,7 @@ func testRequestBody(t *testing.T, tests []func(*Client) ([]byte, error)) {
 		for _, run := range tests {
 			var got []byte
 			request := func(ctx context.Context, method, path string, body, output interface{}) error {
-				buf := new(bytes.Buffer)
-				json.NewEncoder(buf).Encode(body)
-				got = buf.Bytes()
+				got, _ = json.Marshal(body)
 				return nil
 			}
 
@@ -399,7 +396,7 @@ func testRequestBody(t *testing.T, tests []func(*Client) ([]byte, error)) {
 
 			want, err := run(c)
 			if err != nil {
-				t.Fatalf("Got error calling CostCenter.Create '%s'; want nil.", err.Error())
+				t.Fatalf("Got unexpected error '%s'; want nil.", err.Error())
 			}
 
 			if !bytes.Contains(got, want) {

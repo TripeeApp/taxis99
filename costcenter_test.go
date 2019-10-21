@@ -7,7 +7,7 @@ import (
 )
 
 func TestCostCenterFind(t *testing.T) {
-	testPath(t, string(costCenterEndpoint), func(c *Client) error {
+	testPath(t, string(costCentersEndpoint), func(c *Client) error {
 		_, err := c.CostCenter.Find(context.Background(), nil)
 		return err
 	})
@@ -26,7 +26,7 @@ func TestCostCenterFind(t *testing.T) {
 	})
 
 	testResponseBody(t, [][]byte{
-		[]byte(`[{"id":"123","name":"TI","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}]`),
+		[]byte(`[{"id":123,"name":"TI","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}]`),
 	}, func(c *Client) (interface{}, error) {
 		return c.CostCenter.Find(context.Background(), nil)
 	})
@@ -40,7 +40,7 @@ func TestCostCenterFindError(t *testing.T) {
 }
 
 func TestCostCenterCreate(t *testing.T) {
-	testPath(t, string(costCenterEndpoint), func(c *Client) error {
+	testPath(t, string(costCentersEndpoint), func(c *Client) error {
 		_, err := c.CostCenter.Create(context.Background(), CostCenter{})
 		return err
 	})
@@ -51,8 +51,8 @@ func TestCostCenterCreate(t *testing.T) {
 	})
 
 	testResponseBody(t, [][]byte{
-		[]byte(`{"id":"123","name":"IT","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}`),
-		[]byte(`{"id":"124","name":"Marketing","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}`),
+		[]byte(`{"id":123,"name":"IT","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}`),
+		[]byte(`{"id":124,"name":"Marketing","enabled":true,"company":{"id":"1234","name":"Mobilitee"}}`),
 	}, func(c *Client) (interface{}, error) {
 		return c.CostCenter.Create(context.Background(), CostCenter{})
 	})

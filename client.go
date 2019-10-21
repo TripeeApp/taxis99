@@ -54,6 +54,7 @@ type Client struct {
 	common service
 
 	CostCenter *CostCenterService
+	Employee   *EmployeeService
 }
 
 // NewClient returns a reference to the Client struct.
@@ -72,6 +73,7 @@ func NewClient(hc *http.Client) *Client {
 	c.common.client = c
 
 	c.CostCenter = (*CostCenterService)(&c.common)
+	c.Employee = (*EmployeeService)(&c.common)
 
 	return c
 }
