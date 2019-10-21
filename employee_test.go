@@ -53,7 +53,7 @@ func TestEmployeeCreate(t *testing.T) {
 	})
 
 	testResponseBody(t, [][]byte{
-		[]byte(`{"employee":{"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"nationalId":"98765432100","externalId":55091,"categories":["regular-taxi","turbo-taxi","pop99"]},"sendWelcomeEmail":false}`),
+		[]byte(`{"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"nationalId":"98765432100","externalId":55091,"categories":["regular-taxi","turbo-taxi","pop99"]}`),
 	}, func(c *Client) (interface{}, error) {
 		return c.Employee.Create(context.Background(), Employee{}, false)
 	})

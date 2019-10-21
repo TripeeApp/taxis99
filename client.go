@@ -53,6 +53,7 @@ type Client struct {
 	// reuse a single struct instead of allocating one for each service on the heap.
 	common service
 
+	Company    *CompanyService
 	CostCenter *CostCenterService
 	Employee   *EmployeeService
 }
@@ -72,6 +73,7 @@ func NewClient(hc *http.Client) *Client {
 
 	c.common.client = c
 
+	c.Company = (*CompanyService)(&c.common)
 	c.CostCenter = (*CostCenterService)(&c.common)
 	c.Employee = (*EmployeeService)(&c.common)
 

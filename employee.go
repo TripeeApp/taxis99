@@ -59,7 +59,7 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 }
 
 func (e *EmployeeService) Create(ctx context.Context, emp Employee, sendEmail bool) (*Employee, error) {
-	res := new(reqEmployee)
+	res := new(Employee)
 
 	newEmp := reqEmployee{
 		Employee:         &emp,
@@ -71,7 +71,7 @@ func (e *EmployeeService) Create(ctx context.Context, emp Employee, sendEmail bo
 		return nil, err
 	}
 
-	return res.Employee, nil
+	return res, nil
 }
 
 func (e *EmployeeService) Update(ctx context.Context, emp Employee) (*Employee, error) {
