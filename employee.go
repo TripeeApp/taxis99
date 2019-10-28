@@ -64,14 +64,9 @@ func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) (*E
 
 	endpoint := fmt.Sprintf(string(employeesExternalIdEndpoint), extID)
 
-	var res *reqEmployee
-	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &res)
+	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employee)
 	if err != nil {
 		return nil, err
-	}
-
-	if res != nil {
-		employee = res.Employee
 	}
 
 	return employee, nil
