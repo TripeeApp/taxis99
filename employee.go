@@ -59,7 +59,7 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 	return employees, nil
 }
 
-func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int) ([]*Employee, error) {
+func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) ([]*Employee, error) {
 	var employees []*Employee
 
 	endpoint := fmt.Sprintf(string(employeesExternalIdEndpoint), extID)
