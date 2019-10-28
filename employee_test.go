@@ -59,6 +59,13 @@ func TestEmployeeFindByExternalID(t *testing.T) {
 	})
 }
 
+func TestEmployeeFindByExternalIDError(t *testing.T) {
+	testError(t, func(c *Client) error {
+		_, err := c.Employee.FindByExternalID(context.Background(), 2)
+		return err
+	})
+}
+
 func TestEmployeeCreate(t *testing.T) {
 	testPath(t, string(employeesEndpoint), func(c *Client) error {
 		_, err := c.Employee.Create(context.Background(), Employee{}, false)
