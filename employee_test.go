@@ -42,7 +42,7 @@ func TestEmployeeFindError(t *testing.T) {
 }
 
 func TestEmployeeFindByExternalID(t *testing.T) {
-	testPath(t, fmt.Sprintf(string(employeeExternalIdEndpoint), 2), func(c *Client) error {
+	testPath(t, fmt.Sprintf(string(employeesExternalIdEndpoint), 2), func(c *Client) error {
 		_, err := c.Employee.FindByExternalID(context.Background(), 2)
 		return err
 	})

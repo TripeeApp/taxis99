@@ -9,7 +9,7 @@ import (
 const (
 	employeesEndpoint           endpoint = `employees`
 	employeeEndpoint            endpoint = `employees/%d`
-	employeeExternalIdEndpoint  endpoint = `employees/external-id/%d`
+	employeesExternalIdEndpoint endpoint = `employees/external-id/%d`
 	employeeCostCentersEndpoint endpoint = `employees/%d/costcenter`
 )
 
@@ -62,7 +62,7 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int) ([]*Employee, error) {
 	var employees []*Employee
 
-	endpoint := fmt.Sprintf(string(employeeExternalIdEndpoint), extID)
+	endpoint := fmt.Sprintf(string(employeesExternalIdEndpoint), extID)
 
 	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employees)
 	if err != nil {
