@@ -9,6 +9,7 @@ import (
 const (
 	employeesEndpoint           endpoint = `employees`
 	employeeEndpoint            endpoint = `employees/%d`
+	employeeExternalIdEndpoint  endpoint = `employees/external-id/%d`
 	employeeCostCentersEndpoint endpoint = `employees/%d/costcenter`
 )
 
@@ -51,6 +52,19 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 	v := f.values(ccFields)
 
 	err := e.client.Request(ctx, http.MethodGet, string(employeesEndpoint.Query(v)), nil, &employees)
+	if err != nil {
+		return nil, err
+	}
+
+	return employees, nil
+}
+
+func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int) ([]*Employee, error) {
+	var employees []*Employee
+
+	endpoint := fmt.Sprintf(string(employeeExternalIdEndpoint), extID)
+
+	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employees)
 	if err != nil {
 		return nil, err
 	}

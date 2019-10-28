@@ -41,6 +41,24 @@ func TestEmployeeFindError(t *testing.T) {
 	})
 }
 
+func TestEmployeeFindByExternalID(t *testing.T) {
+	testPath(t, fmt.Sprintf(string(employeeExternalIdEndpoint), 2), func(c *Client) error {
+		_, err := c.Employee.FindByExternalID(context.Background(), 2)
+		return err
+	})
+
+	testMethod(t, http.MethodGet, func(c *Client) error {
+		_, err := c.Employee.Find(context.Background(), nil)
+		return err
+	})
+
+	testResponseBody(t, [][]byte{
+		[]byte(`[{"id":125,"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"company":{"id":"47a3083b-5d03-4e05-ad9d-9fd6fddd613e","name":"99"},"nationalId":"98765432100","supervisorId":167,"enabled":true,"externalId":0,"categories":["regular-taxi","top99","turbo-taxi","pop99"]}]`),
+	}, func(c *Client) (interface{}, error) {
+		return c.Employee.FindByExternalID(context.Background(), 2)
+	})
+}
+
 func TestEmployeeCreate(t *testing.T) {
 	testPath(t, string(employeesEndpoint), func(c *Client) error {
 		_, err := c.Employee.Create(context.Background(), Employee{}, false)
