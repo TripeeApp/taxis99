@@ -59,17 +59,22 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 	return employees, nil
 }
 
-func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) ([]*Employee, error) {
-	var employees []*Employee
+func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) (*Employee, error) {
+	var employee *Employee
 
 	endpoint := fmt.Sprintf(string(employeesExternalIdEndpoint), extID)
 
-	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employees)
+	var res *reqEmployee
+	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &res)
 	if err != nil {
 		return nil, err
 	}
 
-	return employees, nil
+	if res != nil {
+		employee = res.Employee
+	}
+
+	return employee, nil
 }
 
 func (e *EmployeeService) Create(ctx context.Context, emp Employee, sendEmail bool) (*Employee, error) {
@@ -106,7 +111,6 @@ func (e *EmployeeService) Update(ctx context.Context, emp Employee) (*Employee, 
 }
 
 func (e *EmployeeService) Remove(ctx context.Context, id int64) error {
-
 	endpoint := fmt.Sprintf(string(employeeEndpoint), id)
 
 	return e.client.Request(context.Background(), http.MethodDelete, endpoint, nil, nil)
@@ -114,6 +118,7 @@ func (e *EmployeeService) Remove(ctx context.Context, id int64) error {
 
 func (e *EmployeeService) FindCostCenters(ctx context.Context, empID int64) ([]*CostCenter, error) {
 	var costCenters []*CostCenter
+
 	endpoint := fmt.Sprintf(string(employeeCostCentersEndpoint), empID)
 
 	err := e.client.Request(context.Background(), http.MethodGet, endpoint, nil, &costCenters)
