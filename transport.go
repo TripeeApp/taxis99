@@ -9,6 +9,10 @@ const (
 	headerCompanyID = "X-Company-Id"
 )
 
+type companyIDKey struct{}
+
+var CompanyID companyIDKey
+
 // Transport is the RountTripper for injecting
 // the authorization header for every request to
 // 99 taxis API.
@@ -37,6 +41,10 @@ func (t *Transport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	if t.CompanyID != "" {
 		req.Header.Set(headerCompanyID, t.CompanyID)
+	}
+
+	if cid, ok := req.Context().Value(CompanyID).(string); ok {
+		req.Header.Set(headerCompanyID, cid)
 	}
 
 	return t.base().RoundTrip(req)
