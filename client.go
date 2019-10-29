@@ -31,6 +31,13 @@ func (e *APIError) Unwrap() error {
 	return e.Err
 }
 
+// unprocessableEntityError is the validation error struct from the API.
+type unprocessableEntityError struct {
+	Code    string `json:"code,omitempty"`
+	Field   string `json:"field,omitempty"`
+	Message string `json:"message,omitempty"`
+}
+
 // requester is the interface that performs a request
 // to the server and delegates the parsing to the parser interface.
 type requester interface {
@@ -108,11 +115,23 @@ func (c *Client) Request(ctx context.Context, method, path string, body, output 
 	}
 	defer res.Body.Close()
 
+	// TODO: find a more elegante way to check http status code.
+	if status := res.StatusCode; status == http.StatusUnprocessableEntity {
+		var e unprocessableEntityError
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return err
+		}
+		return &APIError{
+			StatusCode: status,
+			Msg:        fmt.Sprintf("taxis99: %s", e.Message),
+		}
+	}
+
 	// Ignores io.EOF error caused by empty response body.
 	if err = json.NewDecoder(res.Body).Decode(output); err != nil && !errors.Is(err, io.EOF) {
 		return &APIError{
 			StatusCode: res.StatusCode,
-			Msg:        fmt.Sprintf("api: '%s'.", err.Error()),
+			Msg:        fmt.Sprintf("taxis99: '%s'.", err.Error()),
 			Err:        err,
 		}
 	}

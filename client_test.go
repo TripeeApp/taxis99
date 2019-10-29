@@ -13,8 +13,8 @@ import (
 	"testing"
 )
 
-func newMockServer(hc *http.Client, handler func(w http.ResponseWriter, r *http.Request)) (*Client, *httptest.Server) {
-	s := httptest.NewServer(http.HandlerFunc(handler))
+func newMockServer(hc *http.Client, handler http.HandlerFunc) (*Client, *httptest.Server) {
+	s := httptest.NewServer(handler)
 
 	c := NewClient(hc)
 	u, _ := url.Parse(s.URL + "/")
@@ -248,23 +248,37 @@ func TestClientRequestError(t *testing.T) {
 	})
 }
 
-func TestClienRequestErrorJSON(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("nvalidJSON"))
+func TestClienRequestAPIError(t *testing.T) {
+	testCases := []struct {
+		handler http.HandlerFunc
+	}{
+		{
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("nvalidJSON"))
+			},
+		},
+		{
+			func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte(`{"errors":[{"field":"employee.phone","message":"error.invalidPhoneNumber"}]}`))
+			},
+		},
 	}
 
-	client, srv := newMockServer(nil, handler)
-	defer srv.Close()
+	for _, tc := range testCases {
+		client, srv := newMockServer(nil, tc.handler)
+		defer srv.Close()
 
-	var out struct{}
-	err := client.Request(context.Background(), http.MethodGet, "", nil, &out)
-	if err == nil {
-		t.Error("Got error nil; want it not to be nil.")
-	}
+		var out struct{}
+		err := client.Request(context.Background(), http.MethodGet, "", nil, &out)
+		if err == nil {
+			t.Error("Got error nil; want it not to be nil.")
+		}
 
-	var apiErr *APIError
-	if !errors.As(err, &apiErr) {
-		t.Error("Got error type not to be of APIError type; want it to be.")
+		var apiErr *APIError
+		if !errors.As(err, &apiErr) {
+			t.Error("Got error type not to be of APIError type; want it to be.")
+		}
 	}
 }
 
