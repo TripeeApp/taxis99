@@ -115,7 +115,7 @@ func (c *Client) Request(ctx context.Context, method, path string, body, output 
 	}
 	defer res.Body.Close()
 
-	// TODO: find a more elegante way to check http status code.
+	// TODO: find a better way to handle http status code.
 	if status := res.StatusCode; status == http.StatusUnprocessableEntity {
 		var e unprocessableEntityError
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
