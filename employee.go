@@ -59,17 +59,17 @@ func (e *EmployeeService) Find(ctx context.Context, f Filter) ([]*Employee, erro
 	return employees, nil
 }
 
-func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) (*Employee, error) {
-	var employee *Employee
+func (e *EmployeeService) FindByExternalID(ctx context.Context, extID int64) ([]*Employee, error) {
+	var employees []*Employee
 
 	endpoint := fmt.Sprintf(string(employeesExternalIdEndpoint), extID)
 
-	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employee)
+	err := e.client.Request(ctx, http.MethodGet, endpoint, nil, &employees)
 	if err != nil {
 		return nil, err
 	}
 
-	return employee, nil
+	return employees, nil
 }
 
 func (e *EmployeeService) Create(ctx context.Context, emp Employee, sendEmail bool) (*Employee, error) {
