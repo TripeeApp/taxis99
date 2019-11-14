@@ -28,7 +28,7 @@ func TestEmployeeFind(t *testing.T) {
 	})
 
 	testResponseBody(t, [][]byte{
-		[]byte(`[{"id":125,"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"company":{"id":"47a3083b-5d03-4e05-ad9d-9fd6fddd613e","name":"99"},"nationalId":"98765432100","supervisorId":167,"enabled":true,"externalId":0,"categories":["regular-taxi","top99","turbo-taxi","pop99"]}]`),
+		[]byte(`[{"id":125,"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"company":{"id":"47a3083b-5d03-4e05-ad9d-9fd6fddd613e","name":"99"},"nationalId":"98765432100","supervisorId":167,"enabled":true,"categories":["regular-taxi","top99","turbo-taxi","pop99"]}]`),
 	}, func(c *Client) (interface{}, error) {
 		return c.Employee.Find(context.Background(), nil)
 	})
@@ -53,7 +53,7 @@ func TestEmployeeFindByExternalID(t *testing.T) {
 	})
 
 	testResponseBody(t, [][]byte{
-		[]byte(`[{"id":125,"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"company":{"id":"47a3083b-5d03-4e05-ad9d-9fd6fddd613e","name":"99"},"nationalId":"98765432100","supervisorId":167,"enabled":true,"externalId":0,"categories":["regular-taxi","top99","turbo-taxi","pop99"]}]`),
+		[]byte(`[{"id":125,"name":"José Santos","email":"jose.santos@empresa.com.br","phone":{"number":"11999999999","country":"BRA"},"company":{"id":"47a3083b-5d03-4e05-ad9d-9fd6fddd613e","name":"99"},"nationalId":"98765432100","supervisorId":167,"enabled":true,"categories":["regular-taxi","top99","turbo-taxi","pop99"]}]`),
 	}, func(c *Client) (interface{}, error) {
 		return c.Employee.FindByExternalID(context.Background(), 2)
 	})

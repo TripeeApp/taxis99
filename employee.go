@@ -35,7 +35,7 @@ type Employee struct {
 	NationalID   string   `json:"nationalId,omitempty"`
 	SupervisorID int64    `json:"supervisorId,omitempty"`
 	Enabled      bool     `json:"enabled,omitempty"`
-	ExternalID   int64    `json:"externalId"`
+	ExternalID   int64    `json:"externalId,omitempty"`
 	Categories   []string `json:"categories,omitempty"`
 }
 
